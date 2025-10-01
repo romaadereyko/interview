@@ -1,2 +1,13 @@
 ---
 # defaults file for docker
+flush_all_env:
+ - false
+pkgs1_var:
+ - "docker-ce"
+ - "containerd.io"
+ - "docker-compose"
+pkgs2_var:
+ - "curl"
+ - "ca-certificates"
+ - "gpg"
+requests_ver: "2.25.1"
