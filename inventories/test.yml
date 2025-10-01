@@ -1,0 +1,4 @@
+test:
+  hosts:
+    test_machine:
+      ansible_host: 159.89.142.70
