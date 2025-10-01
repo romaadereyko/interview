@@ -96,7 +96,7 @@
       - "80:80"
     volumes:
       - /data/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - /data/configs:/configs
+      - /data/configs:/configs:rw
     networks_cli_compatible: true
     networks:
       - name: nginx
