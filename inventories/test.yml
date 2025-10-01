@@ -1,4 +1,8 @@
-test:
+test_group:
   hosts:
-    test_machine:
-      ansible_host: 159.89.142.70
+    test_remote:
+      ansible_host: test
+    test_local:
+      ansible_host: local
+
+
