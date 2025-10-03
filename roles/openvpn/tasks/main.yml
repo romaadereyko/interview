@@ -1,2 +1,49 @@
 ---
 # tasks file for openvpn
+- name: Check if script exists
+  stat:
+    path: openvpn-install.sh
+  register: script_stat
+
+- name: Prepare OpenVPN script
+  copy:
+    src: "{{ item.name }}"
+    dest: "{{ item.name}}"
+    mode: "{{ item.perm}}"
+  loop:
+    - { name: openvpn-install.sh, perm: 755 }
+  when: script_stat.stat.exists != true
+
+- name: Check if openvpn exists
+  stat:
+    path: /etc/openvpn/server.conf
+  register: openvpn_stat
+
+- name: Username of config
+  pause:
+    prompt: "Enter username of config"
+  register: username
+
+- name: Openvpn install & create user
+  shell: /bin/bash ./openvpn-install.sh
+  environment:
+    APPROVE_INSTALL: y 
+    APPROVE_IP: y 
+    IPV6_SUPPORT: n 
+    PORT_CHOICE: 2 
+    PORT: 1195 
+    PROTOCOL_CHOICE: 1 
+    DNS: 1 
+    COMPRESSION_ENABLED: n 
+    CUSTOMIZE_ENC: n 
+    CLIENT: "{{ username.user_input }}"
+    PASS: 1
+  when: openvpn_stat.stat.exists != true
+
+- name: Create user
+  shell: /bin/bash ./openvpn-install.sh
+  environment:
+    MENU_OPTION: 1
+    CLIENT: "{{ username.user_input }}"
+    PASS: 1
+  when: openvpn_stat.stat.exists == true
