@@ -1,41 +1,5 @@
 ---
 # tasks file for docker
-- name: Stop docker.service if exist
-  systemd:
-   state: stopped
-   name: "{{ item }}"
-  with_items:
-   - "docker.service"
-   - "docker.socket"
-  ignore_errors: true
-  tags:
-    - always
-
-- name: Delete docker if exist
-  tags: purge
-  apt:
-   state: absent
-   autoremove: yes
-   pkg: "{{ item }}"
-  with_items:
-   - "{{ pkgs1_var }}"
-  when: not flush_all_env|bool
-  ignore_errors: true
-  tags:
-    - always
-
-- name: Delete everything with 'docker' name
-  ansible.builtin.shell:
-    cmd: "rm -rf /etc/apt/sources.list.d/*docker*"
-  tags:
-    - always
-
-- name: Reset failed  services!
-  shell: systemctl reset-failed
-  ignore_errors: true
-  tags:
-    - always
-
 - name: Install packages
   tags: install
   apt:
@@ -46,8 +10,6 @@
   with_items:
    - "{{ pkgs2_var }}"
   when: not flush_all_env|bool
-  tags:
-    - always
 
 - name: Install key gpg from docker.com
   tags: install
@@ -55,8 +17,6 @@
    url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
    state: present
   when: not flush_all_env|bool
-  tags:
-    - always
 
 - name: Add repository to apt
   tags: install
@@ -65,8 +25,6 @@
    state: present
   when: not flush_all_env|bool
   register: docker_key_output
-  tags:
-    - always
 
 - name: Install docker
   tags: install
@@ -78,31 +36,6 @@
   with_items:
    - "{{ pkgs1_var }}"
   when: not flush_all_env|bool
-  tags:
-    - always
-
-#- name: Check requests pylib
-#  ansible.builtin.shell:
-#    cmd: pip freeze | grep requests
-#  register: requests
-#  tags:
-#    - always
-
-#- name: Delete requests pylib
-#  ansible.builtin.pip:
-#    state: absent
-#    name: requests
-#  when: requests.stdout != "requests=={{ requests_ver }}"
-#  tags:
-#    - always
-
-#- name: Install requests pylib
-#  ansible.builtin.pip:
-#    state: present
-#    name: requests=={{ requests_ver }}
-#  when: requests.stdout != "requests=={{ requests_ver }}"
-#  tags:
-#    - always
 
 - name: Logrotate for containers!
   copy:
@@ -113,42 +46,7 @@
     mode: "{{ item.mode }}"
   loop:
     - { src: "docker-logrotate", dest: "/etc/logrotate.d/docker-logrotate", owner: "root", group: "root", mode: "0644"  }
-  tags:
-    - always
 
 - name: Apply new logrotate setting
   ansible.builtin.shell:
     cmd: "logrotate /etc/logrotate.d/docker-logrotate"
-  tags:
-    - always
-
-#- name: Remove key gpg from docker.com
-#  tags: uninstall
-#  apt_key:
-#   url: https://download.docker.com/linux/debian/gpg
-#   state: absent
-#  when: flush_all_env|bool
-#  tags:
-#    - always
-
-#- name: Remove repository from apt
-#  tags: uninstall,never
-#  apt_repository:
-#   repo: deb https://download.docker.com/linux/debian {{ansible_distribution_release}} stable
-#   state: absent
-#  when: flush_all_env|bool
-#  tags:
-#    - always
-
-#- name: Uninstall docker
-#  tags: uninstall
-#  apt:
-#   update_cache: yes
-#   force_apt_get: yes
-#   state: absent
-#   pkg: "{{ item }}"
-#  with_items:
-#   - "{{ pkgs_var }}"
-#  when: flush_all_env|bool
-#  tags:
-#    - always
