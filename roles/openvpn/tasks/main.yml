@@ -50,5 +50,6 @@
 
 - name: Move configs
   copy:
-    remote_src: ~/"{{ username.user_input }}".ovpn
-    dest: ~/configs/"{{ username.user_input }}".ovpn
+    remote_src: yes
+    src: ~/"{{ username.user_input }}".ovpn
+    dest: /data/configs/"{{ username.user_input }}".ovpn
