@@ -47,3 +47,8 @@
     CLIENT: "{{ username.user_input }}"
     PASS: 1
   when: openvpn_stat.stat.exists == true
+
+- name: Move configs
+  copy:
+    remote_src: ~/"{{ username.user_input }}".ovpn
+    dest: ~/configs/"{{ username.user_input }}".ovpn
