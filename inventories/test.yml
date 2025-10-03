@@ -2,7 +2,11 @@ test_group:
   hosts:
     test_remote:
       ansible_host: test
+      ansible_user: radereyko
+      become: true
+      become_method: sudo
     test_local:
       ansible_host: local
+      ansible_user: root
 
 
