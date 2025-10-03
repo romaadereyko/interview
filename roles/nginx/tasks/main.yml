@@ -1,45 +1,4 @@
 ---
-- name: Delete nginx containers if present
-  ansible.builtin.docker_container:
-    name: "{{ item }}"
-    state: absent
-  ignore_errors: true
-  loop:
-    - nginx
-  tags:
-    - always
-
-- name: Delete nginx container's image if present
-  ansible.builtin.docker_image:
-    name: "{{ item }}"
-    tag: latest
-    state: absent
-    force_absent: true
-  ignore_errors: true
-  loop:
-    - nginx
-  tags:
-    - always
-
-- name: Delete "dangling"" image if present
-  community.docker.docker_prune:
-    images: true
-    images_filters:
-      dangling: true
-  ignore_errors: true
-  tags:
-    - always
-
-- name: Delete Main network if present
-  community.docker.docker_network:
-    name: "{{ item }}"
-    state: absent
-  ignore_errors: true
-  loop:
-    - nginx
-  tags:
-    - always
-
 - name: Create Main network
   community.docker.docker_network:
     name: nginx
@@ -47,8 +6,6 @@
     driver: bridge
     driver_options:
       com.docker.network.bridge.name: nginx
-  tags:
-    - always
 
 - name: Pull nginx Latest images
   ansible.builtin.docker_image:
@@ -57,8 +14,6 @@
   ignore_errors: true
   loop:
     - nginx
-  tags:
-    - always
 
 - name: Create directories
   file:
@@ -69,9 +24,7 @@
     group: "{{ item.group }}"
     mode: "{{ item.mode }}"
   loop:
-    - { path: /data/configs, owner: "1000", group: "root", mode: "0775" }
-  tags:
-    - always
+    - { path: ~/configs, owner: "1000", group: "root", mode: "0775" }
 
 - name: Deploy managed files
   copy:
@@ -81,9 +34,7 @@
     group: "{{ item.group }}"
     mode: "{{ item.mode }}"
   loop:
-    - { src: default.conf, dest: /data/default.conf, owner: "root", group: "root", mode: "0644" }
-  tags:
-    - always
+    - { src: default.conf, dest: ~/default.conf, owner: "root", group: "root", mode: "0644" }
 
 - name: nginx container is created
   community.docker.docker_container:
@@ -95,18 +46,13 @@
     ports:
       - "80:80"
     volumes:
-      - /data/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - /data/configs:/configs:rw
+      - ~/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ~/configs:/configs:rw
     networks_cli_compatible: true
     networks:
       - name: nginx
-  tags:
-    - always
 
 - name: nginx container is running
   community.docker.docker_container:
     name: nginx
     state: started
-  tags:
-    - never
-    - run
